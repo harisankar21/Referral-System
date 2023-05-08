@@ -1,7 +1,10 @@
 package com.social.referral.controllers;
 
 
+import com.social.referral.dto.ClaimRequest;
+import com.social.referral.dto.ReferralRequestDTO;
 import com.social.referral.entities.ReferralRequest;
+import com.social.referral.entities.User;
 import com.social.referral.services.ReferralRequestService;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +21,31 @@ public class ReferralRequestController {
 
     //GET Referral request by company
 
-    @RequestMapping(value="/ReferralRequest/{id}",method = RequestMethod.GET,produces = "application/json")
-    public List<ReferralRequest> getReferralRequestsByCompany(@PathVariable(value = "id") Integer companyId){
+    @GetMapping(value="/ReferralRequest/Company/{id}",produces = "application/json")
+    public List<ReferralRequestDTO> getReferralRequestsByCompany(@PathVariable(value = "id") Integer companyId){
         return  referralRequestService.getReferralRequestsByCompany(companyId);
+    }
+    //Get Referal Request by ID
+    @GetMapping(value="/ReferralRequest/{id}",produces = "application/json")
+    public ReferralRequestDTO getReferralRequestsById(@PathVariable(value = "id") Integer ReferralId) throws Exception {
+        return  referralRequestService.getReferralRequestById(ReferralId);
+    }
+    //Claim Referal Request
+    @PostMapping(value="/ReferralRequest/Claim",produces = "application/json")
+    public String claimReferralRequest(@RequestBody ClaimRequest request) throws Exception {
+        return  referralRequestService.claimReferralRequest(request);
     }
 
     //POST Referral request
-    @RequestMapping(value="/ReferralRequest",method = RequestMethod.POST,produces = "application/json",consumes = "application/json")
-    public String addReferralRequest(@RequestBody JSONObject inputJson){
-        return  referralRequestService.addReferralRequest(inputJson);
+    @PostMapping(value="/ReferralRequest",produces = "application/json",consumes = "application/json")
+    public String addReferralRequest(@RequestBody ReferralRequestDTO inputRequest){
+        return  referralRequestService.addReferralRequest(inputRequest);
     }
     //PUT Referral request
+    @PutMapping(value="/ReferralRequest",produces = "application/json",consumes = "application/json")
+    public String updateReferralRequest(@RequestBody ReferralRequestDTO inputRequest) throws Exception {
+        return  referralRequestService.updateReferralRequest(inputRequest);
+    }
 
-    // DELETE  Referral request
+
 }
