@@ -5,12 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.criteria.CriteriaBuilder;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ClaimRequest {
+public class ClaimRequestDTO {
    private Integer requestId;
    private Integer userId;
 }

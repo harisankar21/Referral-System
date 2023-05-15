@@ -1,56 +1,37 @@
 package com.social.referral.services;
+
+import com.social.referral.entities.Email;
 import com.social.referral.entities.ReferralRequest;
 import com.social.referral.entities.User;
 import com.social.referral.repository.ReferralRequestRepository;
-import com.social.referral.repository.UserRepository;
-import org.hibernate.cfg.Environment;
+import com.social.referral.utils.MailUtility;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import javax.mail.internet.MimeMessage;
-import java.nio.file.*;
-import java.util.*;
 
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 @Service
-public class EmailService {
+public class EmailService{
 
     @Autowired
-    private JavaMailSender javaMailSender;
-
+    MailUtility referralUtility;
     @Autowired
     ReferralRequestRepository referralRepo;
 
-
-    @Autowired
-    UserRepository userRepo;
-
-    public void sendEmail() {
-
-
-        String recipients = new String();
+    //Sends mails to all users where approval is null and current date is more than created date + 2 days
+    @Transactional
+    public void sendApprovalNotification() throws IOException {
         List<ReferralRequest> referralRequests = referralRepo.findAllNonApprovedReferralRequests();
-
-        Map<String, Integer> userRequestMap = new HashMap();
         for (ReferralRequest request : referralRequests) {
-            User user = userRepo.findById(request.getTakenBy().getId()).orElse(new User());
-            userRequestMap.put(user.getEmail(), request.getId());
+            User user = request.getTakenBy();
+            String body = new String(Files.readAllBytes(Paths.get("C:\\Users\\albgeorge\\Downloads\\Referral-System\\src\\main\\resources\\template\\ApprovalNotificationTemplate.html")));
+            body=body.replace("${jobid}",request.getJobId()).replace("${company}",request.getCompany().getName()).replace("${recipient}", user.getName()).replace("${rid}", request.getId().toString()).replace("${ruser}", request.getRequestedBy().getName());
+            Email mail = new Email(user.getEmail(), body, "Referral Approval Notification");
+            referralUtility.sendMail(mail);
         }
-        for (Map.Entry<String, Integer> mapElement : userRequestMap.entrySet()) {
-            {
-                try {
-                    MimeMessage mailMessage = javaMailSender.createMimeMessage();
-                    mailMessage.setFrom(Environment.getProperties().getProperty("spring.mail.username"));
-                    mailMessage.setRecipients(MimeMessage.RecipientType.TO, mapElement.getKey());
-                    mailMessage.setSubject("Approval Notification");
-                    mailMessage.setContent(new String(Files.readAllBytes(Paths.get("C:\\Users\\albgeorge\\Downloads\\Referral-System\\src\\main\\resources\\template\\ApprovalNotificationTemplate.html"))), "text/html; charset=utf-8");
-                    javaMailSender.send(mailMessage);
-                } catch (Exception e) {
-                    System.out.println(e.getStackTrace());
-                }
-            }
 
-
-        }
     }
-
 }

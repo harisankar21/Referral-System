@@ -8,14 +8,14 @@ import com.social.referral.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.*;
-
+import org.springframework.web.server.ResponseStatusException;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService{
 
     @Autowired
     UserRepository userRepository;
@@ -25,6 +25,8 @@ public class UserService {
 
     @Autowired
     CompanyService companyService;
+
+
     public List<UserDTO> getUsers(){
         List<UserDTO> usersDto=new ArrayList<>();
         List<User> users= userRepository.getUsersByisActive(1);
@@ -34,6 +36,7 @@ public class UserService {
         return usersDto;
     }
 
+    @Transactional
     public String addUser(UserDTO userDTO){
         String name= userDTO.getCompany();
         User user= getUserEntity(userDTO);
@@ -44,6 +47,7 @@ public class UserService {
     }
 
 
+    @Transactional
     public String updateUser(UserDTO userDTO) throws Exception {
         String name= userDTO.getCompany();
         User repoUser=userRepository.findById(userDTO.getId()).orElse(new User());

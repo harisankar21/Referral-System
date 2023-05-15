@@ -3,15 +3,17 @@ import com.social.referral.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-@Component
+import org.springframework.stereotype.Controller;
+
+import java.io.IOException;
+
+@Controller
 @EnableScheduling
-public class EmailScheduler {
+public class EmailController {
     @Autowired
     EmailService emailService;
-    @Scheduled(fixedDelay = 20000)
-    public void sendMail() {
-        emailService.sendEmail();
-
+    @Scheduled(cron = "${Notification.Approval.Schedule}")
+    public void sendApprovalNotificationMail() throws IOException {
+        emailService.sendApprovalNotification();
     }
 }
